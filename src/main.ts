@@ -1,8 +1,7 @@
 import {app, BrowserWindow} from 'electron';
 import path from 'path';
+import dgram from "node:dgram";
 
-declare const MAIN_WINDOW_VITE_DEV_SERVER_URL: string;
-declare const MAIN_WINDOW_VITE_NAME: string;
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {
@@ -28,6 +27,25 @@ const createWindow = async () => {
 
     // Open the DevTools.
     mainWindow.webContents.openDevTools();
+
+    const server = dgram.createSocket('udp4');
+    server.on('error', (err) => {
+        console.error(`server error:\n${err.stack}`);
+        server.close();
+    });
+
+    server.on('message', (msg) => {
+        // console.log(`server got: ${msg} from ${rinfo.address}:${rinfo.port}`);
+        mainWindow.webContents.send('receive-message', JSON.parse(msg.toString()));
+    });
+
+    server.on('listening', () => {
+        const address = server.address();
+        console.log(`server listening ${address.address}:${address.port}`);
+    });
+
+    server.bind(41234);
+    // Prints: server listening 0.0.0.0:41234
 };
 
 // This method will be called when Electron has finished
