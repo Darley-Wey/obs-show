@@ -14,3 +14,17 @@ body {
     height: 100%;
     width: 100%;
 }
+
+/* 自定义缩放按钮的位置 */
+.ol-zoom {
+    position: absolute;
+    top: 10px;  /* 调整垂直位置 */
+    right: 10px;  /* 将其移到右上角 */
+}
+
+/* 自定义重置旋转按钮的位置 */
+.ol-rotate {
+    position: absolute;
+    top: 40px;    /* 调整距离顶部的距离，避免与缩放按钮重叠 */
+    right: 10px;  /* 将旋转重置按钮也移到右上角 */
+}
