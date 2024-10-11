@@ -28,3 +28,15 @@ body {
     top: 40px;    /* 调整距离顶部的距离，避免与缩放按钮重叠 */
     right: 10px;  /* 将旋转重置按钮也移到右上角 */
 }
+
+/* 修改鼠标位置控件的位置 */
+.ol-mouse-position {
+    position: absolute;
+    bottom: 1px; /* 将控件移到底部 */
+    right: 1px;   /* 将控件移到右边 */
+    height: 20px;
+    width: 200px;
+    background: white;
+    padding-left: 5px;
+    padding-bottom: 3px;
+}
