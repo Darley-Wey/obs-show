@@ -46,6 +46,8 @@ import {defaults, MousePosition} from "ol/control";
 
 console.log('👋 This message is being logged by "renderer.ts", included via Vite');
 
+let showTrails = true;
+
 const redDeadStyle = new Style({
     image: new Icon({
         src: 'src/icons/red/cross.png', // 标记的图标 URL
@@ -250,5 +252,15 @@ window.electronAPI.onReceiveMessage((value: Packet) => {
             uid2LineFeature[unit.uid].setStyle(unit.side === 'red' ? redLineStyle : blueLineStyle);
             vectorSource.addFeature(uid2LineFeature[unit.uid]);
         }
+    }
+})
+
+// 监听按键,按下 F1 切换航迹显示
+document.addEventListener('keydown', (event) => {
+    if (event.key === 'F1') {
+        showTrails = !showTrails;
+        for (const feature in uid2LineFeature)
+            if (showTrails) vectorSource.addFeature(uid2LineFeature[feature]);
+            else vectorSource.removeFeature(uid2LineFeature[feature]);
     }
 })
