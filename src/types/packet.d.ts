@@ -1,6 +1,12 @@
 interface Packet{
     units: Array<Unit>,
-    texts: Array<string>,
+    texts: Array<TextMessage>,
+    reset: boolean,
+}
+
+interface TextMessage{
+    text: string,
+    line_num: number,
 }
 
 interface Unit{

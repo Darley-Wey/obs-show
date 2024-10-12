@@ -100,21 +100,28 @@ function generateUnitInitStyle(unit: Unit): Style {
 }
 
 // 每个对应一个实体
-const uid2PointFeature: {
+let uid2PointFeature: {
     [key: string]: Feature
 } = {};
 // 每个对应一个实体的样式
-const uid2PointStyle: {
+let uid2PointStyle: {
     [key: string]: Style
 } = {};
 // 每个对应一个实体的航迹
-const uid2LineFeature: {
+let uid2LineFeature: {
     [key: string]: Feature
 } = {};
 // 每个对应一个实体的航迹的线
-const uid2LineString: {
+let uid2LineString: {
     [key: string]: LineString
 } = {};
+
+function reset() {
+    uid2PointFeature = {};
+    uid2PointStyle = {};
+    uid2LineFeature = {};
+    uid2LineString = {};
+}
 
 // 鼠标位置控件,额外添加获取海拔数据
 const mousePosition = new MousePosition({
@@ -188,6 +195,20 @@ const map = new Map({
 
 window.electronAPI.onReceiveMessage((value: Packet) => {
     // console.log(value);
+    if (value.reset) {
+        vectorSource.clear();
+        reset();
+        return;
+    }
+
+    if (value.texts) {
+        let message = '';
+        for (const text of value.texts) {
+            message += text.text + '\n';
+        }
+        const textElement = document.getElementById('text-message')
+        textElement.innerText = message;
+    }
     // 移除已经不存在的单位
     for (const uid in uid2PointFeature) {
         if (!value.units.find(unit => unit.uid === uid)) {
