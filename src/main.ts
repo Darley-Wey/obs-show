@@ -1,4 +1,4 @@
-import {app, BrowserWindow} from 'electron';
+import {app, BrowserWindow, Menu, MenuItem} from 'electron';
 import path from 'path';
 import dgram from "node:dgram";
 
@@ -7,6 +7,26 @@ import dgram from "node:dgram";
 if (require('electron-squirrel-startup')) {
     app.quit();
 }
+
+const menu = new Menu()
+menu.append(new MenuItem({
+    label: 'View',
+    visible: false,  // 无效,在创建窗口时再次设置
+    submenu: [
+        {
+            role: 'reload',
+            accelerator: 'F5',
+        },
+        {
+            role: 'togglefullscreen',
+        },
+        {
+            role: 'toggleDevTools',
+            accelerator: 'F12',
+        },
+    ]
+}))
+Menu.setApplicationMenu(menu)
 
 const createWindow = async () => {
     // Create the browser window.
@@ -17,6 +37,7 @@ const createWindow = async () => {
             preload: path.join(__dirname, 'preload.js'),
             webSecurity: false,
         },
+        autoHideMenuBar: true, // 隐藏菜单栏，只绑定快捷键
     });
 
     // and load the index.html of the app.
@@ -27,7 +48,11 @@ const createWindow = async () => {
     }
 
     // Open the DevTools.
-    mainWindow.webContents.openDevTools();
+    // mainWindow.webContents.openDevTools();
+    // 解决关闭 DevTools 时缩放按钮异常获取了焦点
+    mainWindow.webContents.on('devtools-closed', () => {
+        mainWindow.webContents.executeJavaScript("document.querySelector('.ol-zoom-in').blur();");
+    });
 
     const server = dgram.createSocket('udp4');
     server.on('error', (err) => {
