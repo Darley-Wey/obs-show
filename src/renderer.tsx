@@ -178,7 +178,7 @@ const map = new Map({
     layers: [
         new TileLayer({
             source: new XYZ({
-                url: 'http://mt0.google.com/vt/lyrs=s&hl=en&x={x}&y={y}&z={z}',
+                url: 'https://mt0.google.com/vt/lyrs=s&hl=en&x={x}&y={y}&z={z}',
                 maxZoom: 22,
             }),
         }),
