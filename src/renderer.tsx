@@ -43,10 +43,12 @@ import Fill from 'ol/style/Fill';
 import Stroke from 'ol/style/Stroke';
 import {LineString} from "ol/geom";
 import {defaults, MousePosition} from "ol/control";
+import {toStringHDMS} from "ol/coordinate";
 
 console.log('👋 This message is being logged by "renderer.ts", included via Vite');
 
 let showTrails = true;
+let useDMS = false;
 
 const redDeadStyle = new Style({
     image: new Icon({
@@ -157,7 +159,12 @@ const mousePosition = new MousePosition({
                     const pixel = context.getImageData(xRelative, yRelative, canvas.width, canvas.height).data;
                     const elevation = ((pixel[0] * 256 + pixel[1] + pixel[2] / 256) - 32768);
                     const lonLat = toLonLat(coordinate);
-                    mousePositionElement.innerHTML = `${lonLat[1].toFixed(3)} N  ${lonLat[0].toFixed(3)} E  ${elevation.toFixed()} 米`;
+                    if (!useDMS) {
+                        mousePositionElement.innerHTML = `${lonLat[1].toFixed(4)} N  ${lonLat[0].toFixed(4)} E  ${elevation.toFixed()} 米`;
+                    } else {
+                        const StringHDMS = toStringHDMS(lonLat);
+                        mousePositionElement.innerHTML = `${StringHDMS}  ${elevation.toFixed()} 米`;
+                    }
                 };
             });
         return mousePositionElement.innerHTML;
@@ -262,5 +269,13 @@ document.addEventListener('keydown', (event) => {
         for (const feature in uid2LineFeature)
             if (showTrails) vectorSource.addFeature(uid2LineFeature[feature]);
             else vectorSource.removeFeature(uid2LineFeature[feature]);
+    } else if (event.key === 'F2') {
+        useDMS = !useDMS;
+        const e = window.event as MouseEvent
+        map.getViewport().dispatchEvent(
+            new PointerEvent('pointermove', {
+                clientX: e.clientX,
+                clientY: e.clientY,
+            }));
     }
 })

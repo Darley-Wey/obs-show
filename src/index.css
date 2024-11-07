@@ -35,9 +35,10 @@ body {
     bottom: 1px; /* 将控件移到底部 */
     right: 1px;   /* 将控件移到右边 */
     height: 20px;
-    width: 200px;
+    width: auto;
     background: white;
     padding-left: 5px;
+    padding-right: 5px;
     padding-bottom: 3px;
 }
 
