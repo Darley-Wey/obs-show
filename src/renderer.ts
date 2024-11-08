@@ -213,6 +213,7 @@ window.electronAPI.onReceiveMessage((value: Packet) => {
     }
 
     if (value.texts) {
+        // 左上角文本
         let message = '';
         for (const text of value.texts) {
             message += text.text + '\n';
@@ -264,15 +265,18 @@ window.electronAPI.onReceiveMessage((value: Packet) => {
     }
 })
 
-// 监听按键,按下 F1 切换航迹显示
+// 监听按键
 document.addEventListener('keydown', (event) => {
     if (event.key === 'F1') {
+        // F1 切换航迹显示
         showTrails = !showTrails;
         for (const feature in uid2LineFeature)
             if (showTrails) vectorSource.addFeature(uid2LineFeature[feature]);
             else vectorSource.removeFeature(uid2LineFeature[feature]);
     } else if (event.key === 'F2') {
+        // F2 切换坐标显示格式
         useDMS = !useDMS;
+        // 获取鼠标位置，触发更新
         const e = window.event as MouseEvent
         map.getViewport().dispatchEvent(
             new PointerEvent('pointermove', {
