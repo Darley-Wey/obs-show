@@ -148,7 +148,7 @@ const mousePosition = new MousePosition({
                 img.src = URL.createObjectURL(blob);
                 img.onload = () => {
                     const canvas = document.createElement('canvas');
-                    const context = canvas.getContext('2d')!;
+                    const context = canvas.getContext('2d');
                     canvas.width = img.width;
                     canvas.height = img.height;
                     context.drawImage(img, 0, 0);
