@@ -26,7 +26,8 @@
  * ```
  */
 
-import './index.css';
+import './renderer.css';
+import './App'
 import Map from 'ol/Map';
 import View from 'ol/View';
 import TileLayer from 'ol/layer/Tile';
@@ -47,6 +48,7 @@ import {toStringHDMS} from "ol/coordinate";
 
 console.log('👋 This message is being logged by "renderer.ts", included via Vite');
 
+// 配置项
 let showTrails = true;
 let useDMS = false;
 
