@@ -1,0 +1,36 @@
+.measure-tooltip {
+    position: relative;
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: 4px;
+    color: white;
+    padding: 4px 8px;
+    opacity: 0.7;
+    white-space: nowrap;
+}
+
+.measure-tooltip-dynamic {
+    opacity: 1;
+    font-weight: bold;
+}
+
+.measure-tooltip-static {
+    background-color: rgb(255, 204, 51);
+    color: black;
+    border: 1px solid white;
+}
+
+.measure-tooltip-dynamic:before,
+.measure-tooltip-static:before {
+    border-top: 6px solid rgba(0, 0, 0, 0.5);
+    border-right: 6px solid transparent;
+    border-left: 6px solid transparent;
+    content: "";
+    position: absolute;
+    bottom: -6px;
+    margin-left: -7px;
+    left: 50%;
+}
+
+.measure-tooltip-static:before {
+    border-top-color: rgb(255, 204, 51);
+}

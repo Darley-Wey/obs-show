@@ -28,6 +28,7 @@
 
 import './renderer.css';
 import './App'
+
 import Map from 'ol/Map';
 import View from 'ol/View';
 import TileLayer from 'ol/layer/Tile';
@@ -45,6 +46,8 @@ import Stroke from 'ol/style/Stroke';
 import {LineString} from "ol/geom";
 import {defaults, MousePosition} from "ol/control";
 import {toStringHDMS} from "ol/coordinate";
+
+import {addMeasureTool} from "./tools/MeasureTool/MeasureTool";
 
 console.log('👋 This message is being logged by "renderer.ts", included via Vite');
 
@@ -203,6 +206,7 @@ const map = new Map({
         mousePosition
     ]),
 });
+addMeasureTool(map);
 
 window.electronAPI.onReceiveMessage((value: Packet) => {
     // console.log(value);
