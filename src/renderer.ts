@@ -35,13 +35,12 @@ import TileLayer from 'ol/layer/Tile';
 import VectorLayer from 'ol/layer/Vector';
 import XYZ from 'ol/source/XYZ';
 import VectorSource from 'ol/source/Vector';
-import {fromLonLat, toLonLat} from 'ol/proj';
+import {fromLonLat} from 'ol/proj';
 import Feature from 'ol/Feature';
 import Point from 'ol/geom/Point';
 import Style from 'ol/style/Style';
 import {LineString} from "ol/geom";
-import {defaults, MousePosition} from "ol/control";
-import {toStringHDMS} from "ol/coordinate";
+import {defaults} from "ol/control";
 
 import {addMeasureTool} from "./tools/MeasureTool/MeasureTool";
 import {blueDeadStyle, blueLineStyle, generateUnitInitStyle, redDeadStyle, redLineStyle} from "./unitStyle";
@@ -74,51 +73,6 @@ function reset() {
     uid2LineFeature = {};
     uid2LineString = {};
 }
-
-// 鼠标位置控件,额外添加获取海拔数据
-const mousePosition = new MousePosition({
-    coordinateFormat: function (coordinate) {
-        const tileLayer = map.getLayers().item(2) as TileLayer;
-        const tileSource = tileLayer.getSource() as XYZ;
-        const tileGrid = tileSource.getTileGrid();
-        let zoom = map.getView().getZoom();
-        zoom = Math.round(zoom);
-        zoom = Math.min(zoom, 15);
-        const tileCoord = tileGrid.getTileCoordForCoordAndZ(coordinate, zoom);
-        const tileUrl = `https://s3.amazonaws.com/elevation-tiles-prod/terrarium/${tileCoord[0]}/${tileCoord[1]}/${tileCoord[2]}.png`;
-        const mousePositionElement = document.getElementsByClassName('ol-mouse-position')[0];
-        fetch(tileUrl, {mode: 'cors'})
-            .then((response) => response.blob())
-            .then((blob) => {
-                const img = new Image();
-                img.src = URL.createObjectURL(blob);
-                img.onload = () => {
-                    const canvas = document.createElement('canvas');
-                    const context = canvas.getContext('2d');
-                    canvas.width = img.width;
-                    canvas.height = img.height;
-                    context.drawImage(img, 0, 0);
-                    // 获取鼠标相对于瓦片的像素坐标
-                    const tileExtent = tileGrid.getTileCoordExtent(tileCoord);
-                    const resolution = tileGrid.getResolution(zoom);
-                    const xRelative = (coordinate[0] - tileExtent[0]) / resolution;
-                    const yRelative = (tileExtent[3] - coordinate[1]) / resolution;
-                    // 获取对应的像素
-                    const pixel = context.getImageData(xRelative, yRelative, canvas.width, canvas.height).data;
-                    const elevation = ((pixel[0] * 256 + pixel[1] + pixel[2] / 256) - 32768);
-                    const lonLat = toLonLat(coordinate);
-                    if (!useDMS) {
-                        mousePositionElement.innerHTML = `${lonLat[1].toFixed(4)} N  ${lonLat[0].toFixed(4)} E  ${elevation.toFixed()} 米`;
-                    } else {
-                        const StringHDMS = toStringHDMS(lonLat);
-                        mousePositionElement.innerHTML = `${StringHDMS}  ${elevation.toFixed()} 米`;
-                    }
-                };
-            });
-        return mousePositionElement.innerHTML;
-    },
-    projection: 'EPSG:3857',
-})
 
 const vectorSource = new VectorSource()
 const map = new olMap({
