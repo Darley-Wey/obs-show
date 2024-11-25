@@ -39,74 +39,17 @@ import {fromLonLat, toLonLat} from 'ol/proj';
 import Feature from 'ol/Feature';
 import Point from 'ol/geom/Point';
 import Style from 'ol/style/Style';
-import Icon from 'ol/style/Icon';
-import Text from 'ol/style/Text';
-import Fill from 'ol/style/Fill';
-import Stroke from 'ol/style/Stroke';
 import {LineString} from "ol/geom";
 import {defaults, MousePosition} from "ol/control";
 import {toStringHDMS} from "ol/coordinate";
 
 import {addMeasureTool} from "./tools/MeasureTool/MeasureTool";
+import {blueDeadStyle, blueLineStyle, generateUnitInitStyle, redDeadStyle, redLineStyle} from "./unitStyle";
+import {store} from "./config";
+import {mousePosition} from "./controls/mousePositionControl";
 
 console.log('👋 This message is being logged by "renderer.ts", included via Vite');
 
-// 配置项
-let showTrails = true;
-let useDMS = false;
-
-const redDeadStyle = new Style({
-    image: new Icon({
-        src: 'src/icons/red/cross.png', // 标记的图标 URL
-        width: 30, // 图标宽度
-        height: 30, // 图标高度
-    })
-})
-
-const blueDeadStyle = new Style({
-    image: new Icon({
-        src: 'src/icons/blue/cross.png', // 标记的图标 URL
-        width: 30, // 图标宽度
-        height: 30, // 图标高度
-    })
-})
-
-const redLineStyle = new Style({
-    stroke: new Stroke({
-        color: '#FF0000', // 设置路线的颜色
-        width: 1, // 设置路线的宽度
-    }),
-});
-
-const blueLineStyle = new Style({
-    stroke: new Stroke({
-        color: '#00C0FF', // 设置路线的颜色
-        width: 1, // 设置路线的宽度
-    }),
-});
-
-function generateUnitInitStyle(unit: Unit): Style {
-    return new Style({
-        image: new Icon({
-            src: `src/icons/${unit.side}/${unit.icon}.png`, // 标记的图标 URL
-            width: 30, // 图标宽度
-            height: 30, // 图标高度
-            rotation: unit.course * Math.PI / 180, // 图标旋转角度
-        }),
-        text: new Text({
-            text: unit.name, // 初始文字
-            offsetY: -25, // 文字的垂直偏移，使其显示在标记上方
-            fill: new Fill({
-                color: '#000', // 文字颜色
-            }),
-            stroke: new Stroke({
-                color: '#fff', // 文字描边颜色，增加对比度
-                width: 2,
-            }),
-            font: '12px Arial, sans-serif', // 设置字体大小和样式
-        }),
-    });
-}
 
 // 每个对应一个实体
 let uid2PointFeature: {
@@ -207,6 +150,7 @@ const map = new olMap({
     ]),
 });
 addMeasureTool(map);
+store.map = map;
 
 window.electronAPI.onReceiveMessage((value: Packet) => {
     // console.log(value);
@@ -254,8 +198,9 @@ window.electronAPI.onReceiveMessage((value: Packet) => {
             uid2PointFeature[unit.uid] = new Feature({
                 geometry: new Point(fromLonLat([unit.position[1], unit.position[0]])), // 初始化坐标
             });
-            uid2PointStyle[unit.uid] = generateUnitInitStyle(unit);
-            uid2PointFeature[unit.uid].setStyle(uid2PointStyle[unit.uid]);
+            const style = generateUnitInitStyle(unit);
+            [uid2PointStyle[unit.uid]] = style;
+            uid2PointFeature[unit.uid].setStyle(style);
             vectorSource.addFeature(uid2PointFeature[unit.uid]);
 
             // 航迹
@@ -273,13 +218,13 @@ window.electronAPI.onReceiveMessage((value: Packet) => {
 document.addEventListener('keydown', (event) => {
     if (event.key === 'F1') {
         // F1 切换航迹显示
-        showTrails = !showTrails;
+        store.showTrails = !store.showTrails;
         for (const feature in uid2LineFeature)
-            if (showTrails) vectorSource.addFeature(uid2LineFeature[feature]);
+            if (store.showTrails) vectorSource.addFeature(uid2LineFeature[feature]);
             else vectorSource.removeFeature(uid2LineFeature[feature]);
     } else if (event.key === 'F2') {
         // F2 切换坐标显示格式
-        useDMS = !useDMS;
+        store.useDMS = !store.useDMS;
         // 获取鼠标位置，触发更新
         const e = window.event as MouseEvent
         map.getViewport().dispatchEvent(
@@ -287,5 +232,11 @@ document.addEventListener('keydown', (event) => {
                 clientX: e.clientX,
                 clientY: e.clientY,
             }));
+    } else if (event.key === 'F3') {
+        // F3 切换显示红方圆和扇形
+        store.showRedCircleAndSector = !store.showRedCircleAndSector;
+    } else if (event.key === 'F4') {
+        // F4 切换显示蓝方圆和扇形
+        store.showBlueCircleAndSector = !store.showBlueCircleAndSector;
     }
 })
