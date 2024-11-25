@@ -15,10 +15,10 @@ interface Unit{
     icon: string,
     uid: string,
     side: string,
-    circleSize: number,
+    cirsize: number,
     textSize: number,
     iconSize: number,
     simTime: number,
     course: number,
-    sector: number,
+    sector: number[],
 }
