@@ -29,7 +29,7 @@
 import './renderer.css';
 import './App'
 
-import Map from 'ol/Map';
+import olMap from 'ol/Map';
 import View from 'ol/View';
 import TileLayer from 'ol/layer/Tile';
 import VectorLayer from 'ol/layer/Vector';
@@ -178,7 +178,7 @@ const mousePosition = new MousePosition({
 })
 
 const vectorSource = new VectorSource()
-const map = new Map({
+const map = new olMap({
     target: 'map', // html上地图容器的 ID
     layers: [
         new TileLayer({
