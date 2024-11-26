@@ -46,6 +46,9 @@ import {addMeasureTool} from "./tools/MeasureTool/MeasureTool";
 import {blueDeadStyle, blueLineStyle, generateUnitInitStyle, redDeadStyle, redLineStyle} from "./unitStyle";
 import {store} from "./config";
 import {mousePosition} from "./controls/mousePositionControl";
+import Stroke from "ol/style/Stroke";
+import Fill from "ol/style/Fill";
+import {RegularShape} from "ol/style";
 
 console.log('👋 This message is being logged by "renderer.ts", included via Vite');
 
@@ -128,6 +131,41 @@ window.electronAPI.onReceiveMessage((value: Packet) => {
         window.dispatchEvent(new Event('message'));
         return;
     }
+
+    if (value.route) {
+        console.log(value.route, 'route');
+        const route = value.route;
+        const routeFeature = new Feature({
+            geometry: new LineString(route.path.map(([lat, lon]) => fromLonLat([lon, lat]))),
+        });
+        routeFeature.setStyle((feature) => {
+            const styles = []
+            styles.push(new Style({
+                stroke: new Stroke({
+                    color: route.color,
+                    width: 2,
+                })
+            }))
+            const geom = feature.getGeometry() as LineString;
+            const coords = geom.getCoordinates();
+            coords.forEach((coord, index) => {
+                styles.push(new Style({
+                    geometry: new Point(coord),
+                    image: new RegularShape({
+                        points: 3,
+                        radius: 5,
+                        fill: new Fill({
+                            color: route.color,
+                        })
+                    })
+                }))
+            })
+            return styles;
+        });
+        vectorSource.addFeature(routeFeature);
+        return;
+    }
+
     // 移除已经不存在的单位
     for (const uid in uid2PointFeature) {
         if (!value.units.find(unit => unit.uid === uid)) {

@@ -3,6 +3,12 @@ interface Packet{
     texts: Array<TextMessage>,
     reset: boolean,
     message: string,
+    route: Route
+}
+
+interface Route{
+    path: Array<Array<number>>,
+    color: string,
 }
 
 interface TextMessage{
