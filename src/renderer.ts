@@ -123,6 +123,11 @@ window.electronAPI.onReceiveMessage((value: Packet) => {
         const textElement = document.getElementById('text-message')
         textElement.innerText = message;
     }
+    if (value.message) {
+        store.messages.push(value.message);
+        window.dispatchEvent(new Event('message'));
+        return;
+    }
     // 移除已经不存在的单位
     for (const uid in uid2PointFeature) {
         if (!value.units.find(unit => unit.uid === uid)) {

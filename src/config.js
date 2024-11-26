@@ -8,4 +8,5 @@ export const store= {
     useDMS: false, // F2切换
     showRedCircleAndSector: false, // F3切换
     showBlueCircleAndSector: false, // F4切换
+    messages: [],
 }

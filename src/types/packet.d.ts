@@ -2,6 +2,7 @@ interface Packet{
     units: Array<Unit>,
     texts: Array<TextMessage>,
     reset: boolean,
+    message: string,
 }
 
 interface TextMessage{
