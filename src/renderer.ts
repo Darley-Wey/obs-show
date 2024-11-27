@@ -232,8 +232,10 @@ document.addEventListener('keydown', (event) => {
     } else if (event.key === 'F3') {
         // F3 切换显示红方圆和扇形
         store.showRedCircleAndSector = !store.showRedCircleAndSector;
+        vectorSource.changed()
     } else if (event.key === 'F4') {
         // F4 切换显示蓝方圆和扇形
         store.showBlueCircleAndSector = !store.showBlueCircleAndSector;
+        vectorSource.changed()
     }
 })
