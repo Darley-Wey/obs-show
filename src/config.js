@@ -1,7 +1,7 @@
 export const red = '#ff0000';
-export const transparentRed = 'rgba(255, 0, 0, 0.05)';
+export const transparentRed = 'rgba(255, 0, 0, 0.1)';
 export const blue = '#00c0ff';
-export const transparentBlue = 'rgba(0, 192, 255, 0.05)';
+export const transparentBlue = 'rgba(0, 192, 255, 0.1)';
 export const store= {
     map: null,
     showTrails: true, // F1切换
