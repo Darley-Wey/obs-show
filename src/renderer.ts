@@ -42,39 +42,25 @@ import Style from 'ol/style/Style';
 import {LineString} from "ol/geom";
 import {defaults} from "ol/control";
 
-import {blueDeadStyle, blueLineStyle, generateUnitInitStyle, redDeadStyle, redLineStyle} from "./unitStyle";
 import {MeasureControl} from "./controls";
 import {store} from "./config";
 import {mousePosition} from "./controls/mousePositionControl";
 import Stroke from "ol/style/Stroke";
 import Fill from "ol/style/Fill";
 import {RegularShape} from "ol/style";
+import {Select} from "ol/interaction";
+import UnitFeature from "./unitStyle";
 
 console.log('👋 This message is being logged by "renderer.ts", included via Vite');
 
 
 // 每个对应一个实体
-let uid2PointFeature: {
-    [key: string]: Feature
-} = {};
-// 每个对应一个实体的样式
-let uid2PointStyle: {
-    [key: string]: Style
-} = {};
-// 每个对应一个实体的航迹
-let uid2LineFeature: {
-    [key: string]: Feature
-} = {};
-// 每个对应一个实体的航迹的线
-let uid2LineString: {
-    [key: string]: LineString
+let uid2UnitFeature: {
+    [key: string]: UnitFeature
 } = {};
 
 function reset() {
-    uid2PointFeature = {};
-    uid2PointStyle = {};
-    uid2LineFeature = {};
-    uid2LineString = {};
+    uid2UnitFeature = {};
 }
 
 const vectorSource = new VectorSource()
@@ -167,46 +153,23 @@ window.electronAPI.onReceiveMessage((value: Packet) => {
     }
 
     // 移除已经不存在的单位
-    for (const uid in uid2PointFeature) {
+    for (const uid in uid2UnitFeature) {
         if (!value.units.find(unit => unit.uid === uid)) {
-            vectorSource.removeFeature(uid2PointFeature[uid]);
-            vectorSource.removeFeature(uid2LineFeature[uid]);
+            vectorSource.removeFeature(uid2UnitFeature[uid]);
+            vectorSource.removeFeature(uid2UnitFeature[uid].lineFeature);
+            delete uid2UnitFeature[uid];
         }
     }
 
     for (const unit of value.units) {
         // 更新单位的态势
-        if (uid2PointFeature[unit.uid]) {
-            uid2PointFeature[unit.uid].setGeometry(new Point(fromLonLat([unit.position[1], unit.position[0]])));
-            uid2PointStyle[unit.uid].getText().setText(unit.icon === 'cross' ? '' : unit.name);
-            uid2PointStyle[unit.uid].getImage().setRotation(unit.course * Math.PI / 180);
-            uid2LineString[unit.uid].appendCoordinate(fromLonLat([unit.position[1], unit.position[0]]));
-            uid2LineFeature[unit.uid].setGeometry(uid2LineString[unit.uid]);
-            // 叠加死亡样式
-            if (unit.icon == "cross") {
-                uid2PointFeature[unit.uid].setStyle([
-                    uid2PointStyle[unit.uid],
-                    unit.side === 'red' ? redDeadStyle : blueDeadStyle
-                ])
-            }
-
+        if (uid2UnitFeature[unit.uid]) {
+            uid2UnitFeature[unit.uid].update(unit)
         } else {
             // 初始化单位
-            uid2PointFeature[unit.uid] = new Feature({
-                geometry: new Point(fromLonLat([unit.position[1], unit.position[0]])), // 初始化坐标
-            });
-            const style = generateUnitInitStyle(unit);
-            [uid2PointStyle[unit.uid]] = style;
-            uid2PointFeature[unit.uid].setStyle(style);
-            vectorSource.addFeature(uid2PointFeature[unit.uid]);
-
-            // 航迹
-            uid2LineString[unit.uid] = new LineString([fromLonLat([unit.position[1], unit.position[0]])]);
-            uid2LineFeature[unit.uid] = new Feature({
-                geometry: uid2LineString[unit.uid],
-            });
-            uid2LineFeature[unit.uid].setStyle(unit.side === 'red' ? redLineStyle : blueLineStyle);
-            vectorSource.addFeature(uid2LineFeature[unit.uid]);
+            uid2UnitFeature[unit.uid] = new UnitFeature(unit)
+            vectorSource.addFeature(uid2UnitFeature[unit.uid]);
+            vectorSource.addFeature(uid2UnitFeature[unit.uid].lineFeature);
         }
     }
 })
@@ -216,9 +179,9 @@ document.addEventListener('keydown', (event) => {
     if (event.key === 'F1') {
         // F1 切换航迹显示
         store.showTrails = !store.showTrails;
-        for (const feature in uid2LineFeature)
-            if (store.showTrails) vectorSource.addFeature(uid2LineFeature[feature]);
-            else vectorSource.removeFeature(uid2LineFeature[feature]);
+        for (const feature in uid2UnitFeature)
+            if (store.showTrails) vectorSource.addFeature(uid2UnitFeature[feature].lineFeature);
+            else vectorSource.removeFeature(uid2UnitFeature[feature].lineFeature);
     } else if (event.key === 'F2') {
         // F2 切换坐标显示格式
         store.useDMS = !store.useDMS;

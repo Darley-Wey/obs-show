@@ -4,11 +4,15 @@ import Text from "ol/style/Text";
 import Fill from "ol/style/Fill";
 import Stroke from "ol/style/Stroke";
 import {Coordinate} from "ol/coordinate";
+import Feature from "ol/Feature";
+import {fromLonLat} from "ol/proj";
+import Point from "ol/geom/Point";
+import {LineString} from "ol/geom";
 
 import {metersToPixels} from "./util";
 import {blue, red, transparentBlue, transparentRed, store} from "./config";
 
-export const redDeadStyle = new Style({
+const redDeadStyle = new Style({
     image: new Icon({
         src: 'src/icons/red/cross.png', // 标记的图标 URL
         width: 30, // 图标宽度
@@ -16,7 +20,7 @@ export const redDeadStyle = new Style({
     })
 })
 
-export const blueDeadStyle = new Style({
+const blueDeadStyle = new Style({
     image: new Icon({
         src: 'src/icons/blue/cross.png', // 标记的图标 URL
         width: 30, // 图标宽度
@@ -24,31 +28,147 @@ export const blueDeadStyle = new Style({
     })
 })
 
-export const redLineStyle = new Style({
+const redLineStyle = new Style({
     stroke: new Stroke({
         color: red, // 设置路线的颜色
         width: 1, // 设置路线的宽度
     }),
 });
 
-export const blueLineStyle = new Style({
+const blueLineStyle = new Style({
     stroke: new Stroke({
         color: blue, // 设置路线的颜色
         width: 1, // 设置路线的宽度
     }),
 });
 
-export function generateUnitInitStyle(unit: Unit): Style[] {
-    return [
-        new Style({
+class UnitFeature extends Feature {
+    private position: number[];
+    private side: string;
+    private icon: string;
+    private course: number;
+    private name: string;
+    private circleSize: number;
+    private sector: number[];
+    private baseStyle: Style;
+    private lineString: LineString;
+    public lineFeature: Feature;
+
+    constructor(unit: Unit) {
+        super({
+            geometry: new Point(fromLonLat([unit.position[1], unit.position[0]])),
+        });
+        this.updateUnit(unit)
+        this.updateStyle();
+        this.initLine();
+    }
+
+    private initLine() {
+        this.lineString = new LineString([fromLonLat([this.position[1], this.position[0]])]);
+        this.lineFeature = new Feature({
+            geometry: this.lineString,
+        });
+        this.lineFeature.setStyle(this.side === 'red' ? redLineStyle : blueLineStyle);
+    }
+
+    private updateUnit(unit: Unit) {
+        this.position = unit.position;
+        this.side = unit.side;
+        this.icon = unit.icon;
+        this.course = unit.course;
+        this.name = unit.name;
+        this.circleSize = unit.cirsize
+        this.sector = unit.sector;
+    }
+
+    public update(unit: Unit) {
+        this.updateUnit(unit)
+        this.setGeometry(new Point(fromLonLat([unit.position[1], unit.position[0]])))
+        this.baseStyle.getText().setText(unit.icon === 'cross' ? '' : unit.name);
+        this.baseStyle.getImage().setRotation(unit.course * Math.PI / 180);
+        if (unit.icon == "cross") {
+            this.setStyle([
+                this.baseStyle,
+                unit.side === 'red' ? redDeadStyle : blueDeadStyle
+            ])
+        }
+        this.lineString.appendCoordinate(fromLonLat([unit.position[1], unit.position[0]]));
+        this.lineFeature.setGeometry(this.lineString);
+    }
+
+    public updateStyle() {
+        this.baseStyle = this.generateBaseStyle();
+        const circleStyle = this.generateCircleStyle(false);
+        const sectorStyle = this.generateSectorStyle(false);
+        this.setStyle([this.baseStyle, circleStyle, sectorStyle]);
+    }
+
+    public updateSelectedStyle() {
+        const circleStyle = this.generateCircleStyle(true);
+        const sectorStyle = this.generateSectorStyle(true);
+        this.setStyle([this.baseStyle, circleStyle, sectorStyle]);
+    }
+
+    private generateCircleStyle(selected: boolean): Style {
+        return new Style({
+            renderer: (pixel: Coordinate, state) => {
+                if (!this.circleSize) return;
+                if (this.side == 'red' && !store.showRedCircleAndSector && !selected) return;
+                if (this.side == 'blue' && !store.showBlueCircleAndSector && !selected) return
+                const context = state.context;
+                const x = pixel[0];
+                const y = pixel[1];
+                const radius = metersToPixels(this.circleSize);
+                context.beginPath();
+                context.arc(x, y, radius, 0, 2 * Math.PI);
+                context.closePath();
+                context.strokeStyle = this.side === 'red' ? red : blue;
+                context.stroke();
+                if (selected) {
+                    context.fillStyle = this.side === 'red' ? transparentRed : transparentBlue;
+                    context.fill();
+                }
+            }
+        })
+    }
+
+    private generateSectorStyle(selected: boolean): Style {
+        return new Style({
+            renderer: (pixel: Coordinate, state) => {
+                if (!this.sector) return;
+                if (this.side == 'red' && !store.showRedCircleAndSector && !selected) return;
+                if (this.side == 'blue' && !store.showBlueCircleAndSector && !selected) return
+                const context = state.context;
+                const x = pixel[0];
+                const y = pixel[1];
+                let [radius, startAngle, endAngle] = this.sector;
+                radius = metersToPixels(radius);
+                startAngle = startAngle % 360 * Math.PI / 180;
+                endAngle = endAngle % 360 * Math.PI / 180;
+                context.beginPath();
+                context.moveTo(x, y);
+                context.arc(x, y, radius, startAngle - Math.PI / 2, endAngle - Math.PI / 2);
+                context.closePath();
+                context.strokeStyle = this.side === 'red' ? red : blue;
+                context.stroke();
+                if (selected) {
+                    context.fillStyle = this.side === 'red' ? transparentRed : transparentBlue;
+                    context.fill();
+                }
+            }
+        })
+    }
+
+    public generateBaseStyle(): Style {
+        return new Style({
             image: new Icon({
-                src: `src/icons/${unit.side}/${unit.icon}.png`, // 标记的图标 URL
+                src: `src/icons/${this.side}/${this.icon}.png`, // 标记的图标 URL
                 width: 30, // 图标宽度
                 height: 30, // 图标高度
-                rotation: unit.course * Math.PI / 180, // 图标旋转角度
+                rotation: this.course * Math.PI / 180, // 图标旋转角度
             }),
             text: new Text({
-                text: unit.name, // 初始文字
+                text: this.name, // 初始文字
                 offsetY: -25, // 文字的垂直偏移，使其显示在标记上方
                 fill: new Fill({
                     color: '#000', // 文字颜色
@@ -59,49 +179,8 @@ export function generateUnitInitStyle(unit: Unit): Style[] {
                 }),
                 font: '12px Arial, sans-serif', // 设置字体大小和样式
             }),
-        }),
-        // 画圆
-        new Style({
-            renderer: (pixel: Coordinate, state) => {
-                if (!unit.cirsize) return;
-                if (unit.side == 'red' && !store.showRedCircleAndSector) return;
-                if (unit.side == 'blue' && !store.showBlueCircleAndSector) return
-                const context = state.context;
-                const x = pixel[0];
-                const y = pixel[1];
-                const radius = metersToPixels(unit.cirsize);
-                context.beginPath();
-                context.arc(x, y, radius, 0, 2 * Math.PI);
-                context.closePath();
-                context.strokeStyle = unit.side === 'red' ? red : blue;
-                context.stroke();
-                // context.fillStyle = unit.side === 'red' ? transparentRed : transparentBlue;
-                // context.fill();
-            }
-        }),
-        // 画扇形
-        new Style({
-            renderer: (pixel: Coordinate, state) => {
-                if (!unit.sector) return;
-                if (unit.side == 'red' && !store.showRedCircleAndSector) return;
-                if (unit.side == 'blue' && !store.showBlueCircleAndSector) return
-                const context = state.context;
-                const x = pixel[0];
-                const y = pixel[1];
-                let [radius, startAngle, endAngle] = unit.sector;
-                radius = metersToPixels(radius);
-                startAngle = startAngle % 360 * Math.PI / 180;
-                endAngle = endAngle % 360 * Math.PI / 180;
-                context.beginPath();
-                context.moveTo(x, y);
-                // 入参以12点钟方向为0度，顺时针为正
-                context.arc(x, y, radius, startAngle - Math.PI / 2, endAngle - Math.PI / 2);
-                context.closePath();
-                context.strokeStyle = unit.side === 'red' ? red : blue;
-                context.stroke();
-                // context.fillStyle = unit.side === 'red' ? transparentRed : transparentBlue;
-                // context.fill();
-            }
         })
-    ]
+    }
 }
+
+export default UnitFeature;
