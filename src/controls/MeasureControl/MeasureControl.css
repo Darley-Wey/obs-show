@@ -36,7 +36,7 @@
 }
 
 .measure-button {
-    background: rgba(35, 36, 38, 0.6);
+    background: var(--control-bg-color);
     border-width: 0;
     border-radius: 20px;
     height: 40px;
@@ -47,11 +47,11 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    color: #c4c7c5;
+    color: var(--control-text-color);
 }
 
 .measure-button:hover {
-    background: rgba(35, 36, 38, 1);
+    background: var(--control-hover-color);
 }
 
 .measure-icon {
