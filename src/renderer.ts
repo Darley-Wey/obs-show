@@ -64,6 +64,9 @@ function reset() {
 }
 
 const vectorSource = new VectorSource()
+const vectorLayer = new VectorLayer({
+    source: vectorSource,
+});
 const map = new olMap({
     target: 'map', // html上地图容器的 ID
     layers: [
@@ -73,9 +76,7 @@ const map = new olMap({
                 maxZoom: 22,
             }),
         }),
-        new VectorLayer({
-            source: vectorSource,
-        }),
+        vectorLayer,
         new TileLayer({
             source: new XYZ({
                 url: 'https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png',
@@ -94,6 +95,25 @@ const map = new olMap({
 });
 map.addControl(new MeasureControl());
 store.map = map;
+
+// 添加 Select 交互
+const selectInteraction = new Select({
+    layers: [vectorLayer], // 仅对该图层启用交互
+    style: null // 禁用默认样式
+});
+map.addInteraction(selectInteraction);
+// 监听选中事件
+selectInteraction.on('select', (event) => {
+    const selectedFeatures = event.selected;
+    for (const feature of selectedFeatures) {
+        if (!(feature instanceof UnitFeature)) continue;
+        feature.updateSelectedStyle()
+    }
+    for (const feature of event.deselected) {
+        if (!(feature instanceof UnitFeature)) continue;
+        feature.updateStyle()
+    }
+});
 
 window.electronAPI.onReceiveMessage((value: Packet) => {
     // console.log(value);
