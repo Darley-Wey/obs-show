@@ -42,8 +42,8 @@ import Style from 'ol/style/Style';
 import {LineString} from "ol/geom";
 import {defaults} from "ol/control";
 
-import {addMeasureTool} from "./tools/MeasureTool/MeasureTool";
 import {blueDeadStyle, blueLineStyle, generateUnitInitStyle, redDeadStyle, redLineStyle} from "./unitStyle";
+import {MeasureControl} from "./controls";
 import {store} from "./config";
 import {mousePosition} from "./controls/mousePositionControl";
 import Stroke from "ol/style/Stroke";
@@ -106,7 +106,7 @@ const map = new olMap({
         mousePosition
     ]),
 });
-addMeasureTool(map);
+map.addControl(new MeasureControl());
 store.map = map;
 
 window.electronAPI.onReceiveMessage((value: Packet) => {
