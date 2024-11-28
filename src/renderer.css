@@ -44,7 +44,7 @@ body {
 .ol-rotate-reset{
     height: 40px;
     width: 40px;
-    border-radius: 20px;
+    /*border-radius: 20px;*/
     font-size: 25px;
     border-width: 0;
     background: var(--control-bg-color);
@@ -58,9 +58,16 @@ body {
     background: var(--control-hover-color);
 }
 
+.ol-zoom-in {
+    border-bottom-left-radius: 20px;
+    border-top-left-radius: 20px;
+}
+
 .ol-zoom-out {
-    margin-left: 10px;
+    margin-left: 0.5px;
     font-size: 22px;
+    border-bottom-right-radius: 20px;
+    border-top-right-radius: 20px;
 }
 
 /* 自定义重置旋转按钮的位置 */
