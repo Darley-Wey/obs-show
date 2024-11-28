@@ -27,16 +27,44 @@ body {
 
 /* 自定义缩放按钮的位置 */
 .ol-zoom {
-    position: absolute;
-    top: 10px; /* 调整垂直位置 */
-    right: 10px; /* 将其移到右上角 */
+    position: fixed;
+    top: 20px; /* 调整垂直位置 */
+    right: 20px; /* 将其移到右上角 */
+    display: flex;
+}
+
+.ol-zoom-in,
+.ol-zoom-out,
+.ol-rotate-reset{
+    height: 40px;
+    width: 40px;
+    border-radius: 20px;
+    font-size: 25px;
+    border-width: 0;
+    background: rgba(35, 36, 38, 0.6);
+    color: #c4c7c5;
+    user-select: none;
+}
+
+.ol-zoom-in:hover,
+.ol-zoom-out:hover,
+.ol-rotate-reset:hover {
+    background: rgba(35, 36, 38, 1);
+}
+
+.ol-zoom-out {
+    margin-left: 10px;
+    font-size: 22px;
 }
 
 /* 自定义重置旋转按钮的位置 */
 .ol-rotate {
     position: absolute;
-    top: 40px; /* 调整距离顶部的距离，避免与缩放按钮重叠 */
-    right: 10px; /* 将旋转重置按钮也移到右上角 */
+    top: 20px; /* 调整距离顶部的距离，避免与缩放按钮重叠 */
+    right: 120px; /* 将旋转重置按钮也移到右上角 */
+    height: 40px;
+    width: 40px;
+    display: none;
 }
 
 /* 修改鼠标位置控件的位置 */
