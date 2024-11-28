@@ -6,7 +6,7 @@ import {createRoot} from "react-dom/client";
 import {store} from "./config";
 
 const App: React.FC = () => {
-    const [open, setOpen] = useState(true);
+    const [open, setOpen] = useState(false);
     const [data, setData] = useState([]);
     const drawerContentRef = useRef<HTMLDivElement>(null);
 
@@ -25,7 +25,6 @@ const App: React.FC = () => {
     }, []);
     useEffect(() => {
         if (drawerContentRef.current) {
-            console.log('scrollHeight', drawerContentRef.current.scrollHeight)
             drawerContentRef.current.scrollTop = drawerContentRef.current.scrollHeight;
         }
     }, [data]);
