@@ -38,12 +38,14 @@ export class MeasureControl extends Control {
         button.tabIndex = -1;
         button.innerHTML = '<i class="iconfont icon-ruler measure-icon"></i>';
         button.className = 'measure-button';
+        button.title = '测距';
         button.addEventListener('click', () => {
             this.init();
             this.addMeasureTool();
         })
         super({
             element: button,
+            target: document.body,
         });
         this.layer = null;
         this.tooltips = [];

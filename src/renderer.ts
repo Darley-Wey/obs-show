@@ -84,6 +84,10 @@ const map = new olMap({
     }),
     controls: [
         new MousePositionControl(),
+        new Zoom({
+            target: document.body,
+            zoomOutLabel: '−',
+        }),
     ],
 });
 map.addControl(new MeasureControl());

@@ -12,7 +12,7 @@ body {
     height: 100%;
     /*padding: 2rem;*/
     overflow: hidden;
-    position: relative;
+    position: fixed;
     top: 0;
 }
 
@@ -34,9 +34,10 @@ body {
 /* 自定义缩放按钮的位置 */
 .ol-zoom {
     position: fixed;
-    top: 20px; /* 调整垂直位置 */
-    right: 20px; /* 将其移到右上角 */
+    top: 10px; /* 调整垂直位置 */
+    right: 10px; /* 将其移到右上角 */
     display: flex;
+    z-index: 10000;
 }
 
 .ol-zoom-in,
@@ -65,7 +66,7 @@ body {
 
 .ol-zoom-out {
     margin-left: 0.5px;
-    font-size: 22px;
+    /*font-size: 22px;*/
     border-bottom-right-radius: 20px;
     border-top-right-radius: 20px;
 }
@@ -89,10 +90,11 @@ body {
     width: 100%;
     background: var(--control-bg-color);
     padding-left: 5px;
-    padding-right: 20px;
+    padding-right: 10px;
     display: flex;
     justify-content: flex-end;
     align-items: center;
+    z-index: 10000;
 }
 
 /* 左上角文本消息 */
