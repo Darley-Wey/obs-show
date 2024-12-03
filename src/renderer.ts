@@ -40,11 +40,11 @@ import Feature from 'ol/Feature';
 import Point from 'ol/geom/Point';
 import Style from 'ol/style/Style';
 import {LineString} from "ol/geom";
-import {defaults} from "ol/control";
+import {Zoom} from "ol/control";
 
 import {MeasureControl} from "./controls";
 import {store} from "./config";
-import {mousePosition} from "./controls/mousePositionControl";
+import {MousePositionControl} from "./controls/mousePositionControl";
 import Stroke from "ol/style/Stroke";
 import Fill from "ol/style/Fill";
 import {RegularShape} from "ol/style";
@@ -77,21 +77,14 @@ const map = new olMap({
             }),
         }),
         vectorLayer,
-        new TileLayer({
-            source: new XYZ({
-                url: 'https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png',
-                maxZoom: 15 // 最大缩放等级
-            }),
-            visible: false // 不显示瓦片，只用于海拔数据获取
-        })
     ],
     view: new View({
         center: fromLonLat([-157.85, 21.4]),
         zoom: 10,
     }),
-    controls: defaults().extend([
-        mousePosition
-    ]),
+    controls: [
+        new MousePositionControl(),
+    ],
 });
 map.addControl(new MeasureControl());
 store.map = map;

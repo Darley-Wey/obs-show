@@ -83,8 +83,8 @@ body {
 /* 修改鼠标位置控件的位置 */
 .ol-mouse-position {
     position: absolute;
-    bottom: 1px; /* 将控件移到底部 */
-    right: 1px; /* 将控件移到右边 */
+    bottom: 0; /* 将控件移到底部 */
+    right: 0; /* 将控件移到右边 */
     height: 30px;
     width: 100%;
     background: var(--control-bg-color);

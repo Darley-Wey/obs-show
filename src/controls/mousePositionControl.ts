@@ -1,6 +1,6 @@
 // 鼠标位置控件,额外添加获取海拔数据
 import {toLonLat} from "ol/proj";
-import {toStringHDMS} from "ol/coordinate";
+import {Coordinate, toStringHDMS} from "ol/coordinate";
 import {MousePosition} from "ol/control";
 import XYZ from "ol/source/XYZ";
 import TileLayer from "ol/layer/Tile";
@@ -8,11 +8,26 @@ import TileLayer from "ol/layer/Tile";
 import {store} from "../config";
 
 
-export const mousePosition = new MousePosition({
-    coordinateFormat: function (coordinate) {
-        const map = store.map
+export class MousePositionControl extends MousePosition {
+    private readonly layer: TileLayer<XYZ>;
+    constructor() {
+        super({
+            projection: 'EPSG:3857',
+        })
+        this.layer = new TileLayer({
+            source: new XYZ({
+                url: 'https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png',
+                maxZoom: 15,
+            }),
+            visible: false,
+        })
+        this.setCoordinateFormat(this.coordinateFormat);
+    }
+
+    coordinateFormat = (coordinate: Coordinate) => {
+        const map = this.getMap();
         if (!map) return '';
-        const tileLayer = map.getLayers().item(2) as TileLayer;
+        const tileLayer = this.layer;
         const tileSource = tileLayer.getSource() as XYZ;
         const tileGrid = tileSource.getTileGrid();
         const zoom = tileGrid.getZForResolution(map.getView().getResolution());
@@ -45,6 +60,5 @@ export const mousePosition = new MousePosition({
             }
         }
         return mousePositionElement.innerHTML;
-    },
-    projection: 'EPSG:3857',
-})
+    }
+}
