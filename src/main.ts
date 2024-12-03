@@ -1,10 +1,11 @@
 import {app, BrowserWindow, Menu, MenuItem} from 'electron';
 import path from 'path';
 import dgram from "node:dgram";
+import started from 'electron-squirrel-startup'
 
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
-if (require('electron-squirrel-startup')) {
+if (started) {
     app.quit();
 }
 
