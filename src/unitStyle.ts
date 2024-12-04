@@ -12,9 +12,12 @@ import {LineString} from "ol/geom";
 import {metersToPixels} from "./util";
 import {blue, red, transparentBlue, transparentRed, store} from "./config";
 
+const resourcesPath = window.electronAPI.getResourcesPath();
+console.log('resourcesPath', resourcesPath)
+
 const redDeadStyle = new Style({
     image: new Icon({
-        src: 'src/icons/red/cross.png', // 标记的图标 URL
+        src: `${resourcesPath}/icons/red/cross.png`, // 标记的图标 URL
         width: 30, // 图标宽度
         height: 30, // 图标高度
     })
@@ -22,7 +25,7 @@ const redDeadStyle = new Style({
 
 const blueDeadStyle = new Style({
     image: new Icon({
-        src: 'src/icons/blue/cross.png', // 标记的图标 URL
+        src: `${resourcesPath}/icons/blue/cross.png`, // 标记的图标 URL
         width: 30, // 图标宽度
         height: 30, // 图标高度
     })
@@ -162,7 +165,7 @@ class UnitFeature extends Feature {
     public generateBaseStyle(): Style {
         return new Style({
             image: new Icon({
-                src: `src/icons/${this.side}/${this.icon}.png`, // 标记的图标 URL
+                src: `${resourcesPath}/icons/${this.side}/${this.icon}.png`, // 标记的图标 URL
                 width: 30, // 图标宽度
                 height: 30, // 图标高度
                 rotation: this.course * Math.PI / 180, // 图标旋转角度
