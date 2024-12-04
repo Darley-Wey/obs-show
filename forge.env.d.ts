@@ -1,6 +1,8 @@
 /// <reference types="@electron-forge/plugin-vite/forge-vite-env" />
 export interface IElectronAPI {
     onReceiveMessage: (callback: (value: Packet) => void) => void,
+    process: NodeJS.Process,
+    getResourcesPath: () => string,
 }
 
 declare global {

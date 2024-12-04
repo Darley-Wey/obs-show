@@ -1,4 +1,4 @@
-import {app, BrowserWindow, Menu, MenuItem} from 'electron';
+import {app, BrowserWindow, Menu, MenuItem, ipcMain} from 'electron';
 import path from 'path';
 import dgram from "node:dgram";
 import started from 'electron-squirrel-startup'
@@ -40,7 +40,7 @@ const createWindow = async () => {
         },
         autoHideMenuBar: true, // 隐藏菜单栏，只绑定快捷键
     });
-
+    ipcMain.handle('get-resources-path', () => process.resourcesPath);
     // and load the index.html of the app.
     if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
         await mainWindow.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL);
