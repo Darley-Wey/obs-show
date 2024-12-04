@@ -95,8 +95,10 @@ class UnitFeature extends Feature {
                 unit.side === 'red' ? redDeadStyle : blueDeadStyle
             ])
         }
+        const lastCoordinate = this.lineString.getLastCoordinate()
+        const coordinate = fromLonLat([unit.position[1], unit.position[0]]);
+        if (lastCoordinate[0] === coordinate[0] && lastCoordinate[1] === coordinate[1]) return;
         this.lineString.appendCoordinate(fromLonLat([unit.position[1], unit.position[0]]));
-        this.lineFeature.setGeometry(this.lineString);
     }
 
     public updateStyle() {
