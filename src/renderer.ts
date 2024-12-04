@@ -60,7 +60,10 @@ let uid2UnitFeature: {
 } = {};
 
 function reset() {
+    vectorSource.clear();
     uid2UnitFeature = {};
+    store.messages = [];
+    window.dispatchEvent(new Event('message'));
 }
 
 const vectorSource = new VectorSource()
@@ -115,7 +118,6 @@ selectInteraction.on('select', (event) => {
 window.electronAPI.onReceiveMessage((value: Packet) => {
     // console.log(value);
     if (value.reset) {
-        vectorSource.clear();
         reset();
         return;
     }
