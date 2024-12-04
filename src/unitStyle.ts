@@ -174,12 +174,12 @@ class UnitFeature extends Feature {
                 text: this.name, // 初始文字
                 offsetY: -25, // 文字的垂直偏移，使其显示在标记上方
                 fill: new Fill({
-                    color: '#000', // 文字颜色
+                    color: '#07f809', // 文字颜色
                 }),
-                stroke: new Stroke({
-                    color: '#fff', // 文字描边颜色，增加对比度
-                    width: 2,
-                }),
+                // stroke: new Stroke({
+                //     color: '#fff', // 文字描边颜色，增加对比度
+                //     width: 1,
+                // }),
                 font: '12px Arial, sans-serif', // 设置字体大小和样式
             }),
         })
