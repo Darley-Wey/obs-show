@@ -79,6 +79,11 @@ export class MeasureControl extends Control {
             if (!this.drawing) {
                 this.source.clear();
                 this.tooltips.forEach(tooltip => this.getMap().removeOverlay(tooltip));
+                this.getMap().getInteractions().forEach(interaction => {
+                    if (interaction instanceof Draw) {
+                        this.getMap().removeInteraction(interaction);
+                    }
+                })
             }
         })
 
@@ -89,7 +94,6 @@ export class MeasureControl extends Control {
         const draw = this.generateDraw()
         this.getMap().addInteraction(draw);
         const measureTooltip = newMeasureTooltip();
-        this.getMap().addOverlay(measureTooltip);
         this.tooltips.push(measureTooltip);
 
         const abortDrawing = () => {
@@ -99,10 +103,15 @@ export class MeasureControl extends Control {
         }
 
         draw.on('drawstart', (event) => {
+            this.drawing = true;
+            this.getMap().addOverlay(measureTooltip);
             // 监听绘制过程
             const geom = event.feature.getGeometry() as LineString;
+            const el = measureTooltip.getElement();
+            el.innerHTML = '';
+            el.className = '';
+            measureTooltip.setPosition(geom.getLastCoordinate());
             geom.on('change', () => {
-                const el = measureTooltip.getElement();
                 el.innerHTML = formatLength(getLength(geom), 2);
                 el.className = `${measureTooltipClass.tooltip} ${measureTooltipClass.tooltipDynamic}`;
                 measureTooltip.setPosition(geom.getLastCoordinate());
