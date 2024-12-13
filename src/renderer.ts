@@ -185,6 +185,23 @@ window.electronAPI.onReceiveMessage((value: Packet) => {
         return;
     }
 
+    if (value.rectangle) {
+        const rectangle = value.rectangle;
+        const rectangleFeature = new Feature({
+            geometry: fromExtent(transformExtent([
+                rectangle.ld[1], rectangle.ld[0], rectangle.ru[1], rectangle.ru[0]
+            ], 'EPSG:4326', 'EPSG:3857')),
+        });
+        rectangleFeature.setStyle(new Style({
+            stroke: new Stroke({
+                color: rectangle.color || 'red',
+                width: 2,
+            })
+        }));
+        vectorSource.addFeature(rectangleFeature);
+        return;
+    }
+
     // 移除已经不存在的单位
     for (const uid in uid2UnitFeature) {
         if (!value.units.find(unit => unit.uid === uid)) {
