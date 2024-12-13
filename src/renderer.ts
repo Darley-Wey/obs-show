@@ -35,11 +35,12 @@ import TileLayer from 'ol/layer/Tile';
 import VectorLayer from 'ol/layer/Vector';
 import XYZ from 'ol/source/XYZ';
 import VectorSource from 'ol/source/Vector';
-import {fromLonLat} from 'ol/proj';
+import {fromLonLat, transformExtent} from 'ol/proj';
 import Feature from 'ol/Feature';
 import Point from 'ol/geom/Point';
 import Style from 'ol/style/Style';
 import {LineString} from "ol/geom";
+import {fromExtent} from 'ol/geom/Polygon';
 import {Zoom} from "ol/control";
 
 import {MeasureControl} from "./controls";
@@ -82,8 +83,8 @@ const map = new olMap({
         vectorLayer,
     ],
     view: new View({
-        center: fromLonLat([-157.85, 21.4]),
-        zoom: 10,
+        center: fromLonLat([104.1954, 35.8617]),
+        zoom: 4,
     }),
     controls: [
         new MousePositionControl(),
@@ -119,6 +120,19 @@ window.electronAPI.onReceiveMessage((value: Packet) => {
     // console.log(value);
     if (value.reset) {
         reset();
+        const resetParams = value.reset;
+        let center: number[]
+        if (resetParams.center) {
+            center = fromLonLat([resetParams.center[1], resetParams.center[0]]);
+            map.getView().setCenter(center);
+        }
+        if (resetParams.range) {
+            const minX = center[0] - resetParams.range[0] / 2;
+            const minY = center[1] - resetParams.range[1] / 2;
+            const maxX = center[0] + resetParams.range[0] / 2;
+            const maxY = center[1] + resetParams.range[1] / 2;
+            map.getView().fit(fromExtent([minX, minY, maxX, maxY]));
+        }
         return;
     }
 
