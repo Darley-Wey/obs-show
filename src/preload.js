@@ -6,7 +6,7 @@ let resourcesPath = ''
 ipcRenderer.invoke('get-resources-path', '').then((path) => {
     console.log('preload.js loaded', path);
     const isDev = process.env.NODE_ENV === 'development';
-    resourcesPath = isDev ? '' : path;
+    resourcesPath = isDev ? 'public' : path;
 })
 
 contextBridge.exposeInMainWorld('electronAPI', {
