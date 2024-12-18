@@ -55,7 +55,7 @@ reset = {"reset":{
 sock.sendto(json.dumps(reset).encode(), address)
 units = [{
     "name": "plane1 30km/s",
-    "position": (21.4, -157.8)
+    "position": (21.4, -157.8),
     "icon": "plane",
     "uid": 111,
     "side": 'red',
@@ -63,7 +63,7 @@ units = [{
     "course": 30,
 },{
     "name": "plane2 32km/s",
-    "position": (21.0, -157.8)
+    "position": (21.0, -157.8),
     "icon": "plane",
     "uid": 112,
     "side": 'red',
@@ -71,8 +71,8 @@ units = [{
     "course": 36,
 }]
 texts = [{
-    text: "时间：19:30:30"
-    line_number: 1
+    "text": "时间：19:30:30",
+    "line_number": 1
 }]
 sock.sendto(json.dumps({"units": units, "texts": texts}).encode(), address)
 msg = "19:30:30 Z-9 1向SAM 1开火"
