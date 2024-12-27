@@ -1,21 +1,12 @@
-import './App.css'
-import React, {useEffect, useRef, useState} from "react";
-import {Drawer} from "antd";
-import {LeftOutlined} from "@ant-design/icons";
+import React, {useEffect, useState} from "react";
 import {createRoot} from "react-dom/client";
-import {store} from "./config";
+import {EventDrawer} from "./components/EventDrawer";
+import {Map} from "./map/Map";
+import {store} from "./map/config";
 
 const App: React.FC = () => {
-    const [open, setOpen] = useState(false);
     const [data, setData] = useState([]);
-    const drawerContentRef = useRef<HTMLDivElement>(null);
 
-    const showDrawer = () => {
-        setOpen(true);
-    };
-    const onClose = () => {
-        setOpen(false);
-    };
     useEffect(() => {
         const handleData =  () => {
             // console.log('data', store.messages.length)
@@ -23,22 +14,11 @@ const App: React.FC = () => {
         }
         window.addEventListener('message', handleData);
     }, []);
-    useEffect(() => {
-        if (drawerContentRef.current) {
-            drawerContentRef.current.scrollTop = drawerContentRef.current.scrollHeight;
-        }
-    }, [data]);
 
     return (
         <>
-            <LeftOutlined onClick={showDrawer} className="drawer-button" />
-            <Drawer title="事件看板" onClose={onClose} open={open} mask={false}>
-                <div ref={drawerContentRef} style={{ maxHeight: '100%', overflowY: 'auto' }}>
-                    {data.map((item, index) => (
-                        <p key={index}>{item}</p>
-                    ))}
-                </div>
-            </Drawer>
+            <EventDrawer data={data}/>
+            <Map/>
         </>
     );
 }

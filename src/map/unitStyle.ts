@@ -80,7 +80,7 @@ class UnitFeature extends Feature {
         this.icon = unit.icon;
         this.course = unit.course;
         this.name = unit.name;
-        this.circleSize = unit.cirsize
+        this.circleSize = unit.circleSize
         this.sector = unit.sector;
     }
 
