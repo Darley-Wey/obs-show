@@ -15,3 +15,10 @@ body {
     position: fixed;
     top: 0;
 }
+
+#app {
+    display: flex;
+    flex-direction: row;
+    height: 100%;
+    width: 100vw;
+}

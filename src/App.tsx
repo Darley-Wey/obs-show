@@ -6,19 +6,23 @@ import {store} from "./map/config";
 
 const App: React.FC = () => {
     const [data, setData] = useState([]);
+    const [packet, setPacket] = useState(null);
 
     useEffect(() => {
-        const handleData =  () => {
+        const handleData = () => {
             // console.log('data', store.messages.length)
             setData([...store.messages]);
         }
         window.addEventListener('message', handleData);
+        window.electronAPI.onReceiveMessage((value: Packet) => {
+            setPacket(value);
+        });
     }, []);
 
     return (
         <>
             <EventDrawer data={data}/>
-            <Map/>
+            <Map packet={packet}/>
         </>
     );
 }

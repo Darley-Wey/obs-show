@@ -25,33 +25,37 @@ import {Select} from "ol/interaction";
 import UnitFeature from "./unitStyle";
 
 interface MapProps {
-    style?: React.CSSProperties
+    style?: React.CSSProperties,
+    packet?: Packet,
 }
 
-const defaultStyle = {
+const defaultStyle: React.CSSProperties = {
     width: '100%',
     height: '100%',
+    position: 'relative',
 }
 
-export const Map: React.FC<MapProps> = ({style = defaultStyle}) => {
+// 每个对应一个实体
+let uid2UnitFeature: {
+    [key: string]: UnitFeature
+} = {};
+
+function reset() {
+    vectorSource.clear();
+    uid2UnitFeature = {};
+    store.messages = [];
+    window.dispatchEvent(new Event('message'));
+}
+
+const vectorSource = new VectorSource()
+const vectorLayer = new VectorLayer({
+    source: vectorSource,
+});
+let map: olMap;
+
+export const Map: React.FC<MapProps> = ({style, packet}) => {
     useEffect(() => {
-        // 每个对应一个实体
-        let uid2UnitFeature: {
-            [key: string]: UnitFeature
-        } = {};
-
-        function reset() {
-            vectorSource.clear();
-            uid2UnitFeature = {};
-            store.messages = [];
-            window.dispatchEvent(new Event('message'));
-        }
-
-        const vectorSource = new VectorSource()
-        const vectorLayer = new VectorLayer({
-            source: vectorSource,
-        });
-        const map = new olMap({
+        map = new olMap({
             target: 'map', // html上地图容器的 ID
             layers: [
                 new TileLayer({
@@ -96,114 +100,6 @@ export const Map: React.FC<MapProps> = ({style = defaultStyle}) => {
             }
         });
 
-        window.electronAPI.onReceiveMessage((value: Packet) => {
-            // console.log(value);
-            if (value.reset) {
-                reset();
-                const resetParams = value.reset;
-                let center: number[]
-                if (resetParams.center) {
-                    center = fromLonLat([resetParams.center[1], resetParams.center[0]]);
-                    map.getView().setCenter(center);
-                }
-                if (resetParams.range) {
-                    const minX = center[0] - resetParams.range[0] / 2;
-                    const minY = center[1] - resetParams.range[1] / 2;
-                    const maxX = center[0] + resetParams.range[0] / 2;
-                    const maxY = center[1] + resetParams.range[1] / 2;
-                    map.getView().fit(fromExtent([minX, minY, maxX, maxY]));
-                }
-                return;
-            }
-
-            if (value.texts) {
-                // 左上角文本
-                let message = '';
-                for (const text of value.texts) {
-                    message += text.text + '\n';
-                }
-                const textElement = document.getElementById('text-message')
-                textElement.innerText = message;
-            }
-            if (value.message) {
-                store.messages.push(value.message);
-                window.dispatchEvent(new Event('message'));
-                return;
-            }
-
-            if (value.route) {
-                console.log(value.route, 'route');
-                const route = value.route;
-                const routeFeature = new Feature({
-                    geometry: new LineString(route.path.map(([lat, lon]) => fromLonLat([lon, lat]))),
-                });
-                routeFeature.setStyle((feature) => {
-                    const styles = []
-                    styles.push(new Style({
-                        stroke: new Stroke({
-                            color: route.color,
-                            width: 2,
-                        })
-                    }))
-                    const geom = feature.getGeometry() as LineString;
-                    const coords = geom.getCoordinates();
-                    coords.forEach((coord, index) => {
-                        styles.push(new Style({
-                            geometry: new Point(coord),
-                            image: new RegularShape({
-                                points: 3,
-                                radius: 5,
-                                fill: new Fill({
-                                    color: route.color,
-                                })
-                            })
-                        }))
-                    })
-                    return styles;
-                });
-                vectorSource.addFeature(routeFeature);
-                return;
-            }
-
-            if (value.rectangle) {
-                const rectangle = value.rectangle;
-                const rectangleFeature = new Feature({
-                    geometry: fromExtent(transformExtent([
-                        rectangle.ld[1], rectangle.ld[0], rectangle.ru[1], rectangle.ru[0]
-                    ], 'EPSG:4326', 'EPSG:3857')),
-                });
-                rectangleFeature.setStyle(new Style({
-                    stroke: new Stroke({
-                        color: rectangle.color || 'red',
-                        width: 2,
-                    })
-                }));
-                vectorSource.addFeature(rectangleFeature);
-                return;
-            }
-
-            // 移除已经不存在的单位
-            for (const uid in uid2UnitFeature) {
-                if (!value.units.find(unit => unit.uid === uid)) {
-                    vectorSource.removeFeature(uid2UnitFeature[uid]);
-                    vectorSource.removeFeature(uid2UnitFeature[uid].lineFeature);
-                    delete uid2UnitFeature[uid];
-                }
-            }
-
-            for (const unit of value.units) {
-                // 更新单位的态势
-                if (uid2UnitFeature[unit.uid]) {
-                    uid2UnitFeature[unit.uid].update(unit)
-                } else {
-                    // 初始化单位
-                    uid2UnitFeature[unit.uid] = new UnitFeature(unit)
-                    vectorSource.addFeature(uid2UnitFeature[unit.uid]);
-                    vectorSource.addFeature(uid2UnitFeature[unit.uid].lineFeature);
-                }
-            }
-        })
-
         // 监听按键
         document.addEventListener('keydown', (event) => {
             if (event.key === 'F1') {
@@ -234,8 +130,117 @@ export const Map: React.FC<MapProps> = ({style = defaultStyle}) => {
         })
     }, []);
 
+    useEffect(() => {
+        if (!packet) return;
+        // console.log(value);
+        if (packet.reset) {
+            reset();
+            const resetParams = packet.reset;
+            let center: number[]
+            if (resetParams.center) {
+                center = fromLonLat([resetParams.center[1], resetParams.center[0]]);
+                map.getView().setCenter(center);
+            }
+            if (resetParams.range) {
+                const minX = center[0] - resetParams.range[0] / 2;
+                const minY = center[1] - resetParams.range[1] / 2;
+                const maxX = center[0] + resetParams.range[0] / 2;
+                const maxY = center[1] + resetParams.range[1] / 2;
+                map.getView().fit(fromExtent([minX, minY, maxX, maxY]));
+            }
+            return;
+        }
+
+        if (packet.texts) {
+            // 左上角文本
+            let message = '';
+            for (const text of packet.texts) {
+                message += text.text + '\n';
+            }
+            const textElement = document.getElementById('text-message')
+            textElement.innerText = message !== '' ? message : textElement.innerText;
+        }
+        if (packet.message) {
+            store.messages.push(packet.message);
+            window.dispatchEvent(new Event('message'));
+            return;
+        }
+
+        if (packet.route) {
+            console.log(packet.route, 'route');
+            const route = packet.route;
+            const routeFeature = new Feature({
+                geometry: new LineString(route.path.map(([lat, lon]) => fromLonLat([lon, lat]))),
+            });
+            routeFeature.setStyle((feature) => {
+                const styles = []
+                styles.push(new Style({
+                    stroke: new Stroke({
+                        color: route.color,
+                        width: 2,
+                    })
+                }))
+                const geom = feature.getGeometry() as LineString;
+                const coords = geom.getCoordinates();
+                coords.forEach((coord, index) => {
+                    styles.push(new Style({
+                        geometry: new Point(coord),
+                        image: new RegularShape({
+                            points: 3,
+                            radius: 5,
+                            fill: new Fill({
+                                color: route.color,
+                            })
+                        })
+                    }))
+                })
+                return styles;
+            });
+            vectorSource.addFeature(routeFeature);
+            return;
+        }
+
+        if (packet.rectangle) {
+            const rectangle = packet.rectangle;
+            const rectangleFeature = new Feature({
+                geometry: fromExtent(transformExtent([
+                    rectangle.ld[1], rectangle.ld[0], rectangle.ru[1], rectangle.ru[0]
+                ], 'EPSG:4326', 'EPSG:3857')),
+            });
+            rectangleFeature.setStyle(new Style({
+                stroke: new Stroke({
+                    color: rectangle.color || 'red',
+                    width: 2,
+                })
+            }));
+            vectorSource.addFeature(rectangleFeature);
+            return;
+        }
+
+        // 移除已经不存在的单位
+        for (const uid in uid2UnitFeature) {
+            if (!packet.units.find(unit => unit.uid === uid)) {
+                vectorSource.removeFeature(uid2UnitFeature[uid]);
+                vectorSource.removeFeature(uid2UnitFeature[uid].lineFeature);
+                delete uid2UnitFeature[uid];
+            }
+        }
+
+        for (const unit of packet.units) {
+            // 更新单位的态势
+            if (uid2UnitFeature[unit.uid]) {
+                uid2UnitFeature[unit.uid].update(unit)
+            } else {
+                // 初始化单位
+                uid2UnitFeature[unit.uid] = new UnitFeature(unit)
+                vectorSource.addFeature(uid2UnitFeature[unit.uid]);
+                vectorSource.addFeature(uid2UnitFeature[unit.uid].lineFeature);
+            }
+        }
+    }, [packet]);
+
     return (
-        <div id="map" style={style}>
+        <div id="map" style={{...defaultStyle, ...style}}>
             <div id="text-message"></div>
         </div>
     )
