@@ -12,7 +12,7 @@ export class MousePositionControl extends MousePosition {
     private readonly layer: TileLayer<XYZ>;
     constructor() {
         super({
-            target: document.body,
+            target: document.getElementById('map'),
             projection: 'EPSG:3857',
         })
         this.layer = new TileLayer({

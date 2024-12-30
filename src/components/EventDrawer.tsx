@@ -32,7 +32,7 @@ export const EventDrawer: React.FC<Props> = ({data}) => {
     return (
         <>
             <LeftOutlined onClick={showDrawer} style={buttonStyle}/>
-            <Drawer title="事件看板" onClose={onClose} open={open} mask={false}>
+            <Drawer title="事件看板" onClose={onClose} open={open} mask={false} getContainer={document.getElementById('map')}>
                 <div ref={drawerContentRef} style={{maxHeight: '100%', overflowY: 'auto'}}>
                     {data.map((item, index) => (
                         <p key={index}>{item}</p>
