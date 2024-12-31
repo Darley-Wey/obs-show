@@ -1,4 +1,5 @@
 import {app, BrowserWindow, Menu, MenuItem, ipcMain} from 'electron';
+import {installExtension, REACT_DEVELOPER_TOOLS} from 'electron-devtools-installer';
 import path from 'path';
 import dgram from "node:dgram";
 import started from 'electron-squirrel-startup'
@@ -30,6 +31,9 @@ menu.append(new MenuItem({
 Menu.setApplicationMenu(menu)
 
 const createWindow = async () => {
+    installExtension(REACT_DEVELOPER_TOOLS)
+        .then((ext) => console.log(`Added Extension:  ${ext.name}`))
+        .catch((err) => console.log('An error occurred: ', err));
     // Create the browser window.
     const mainWindow = new BrowserWindow({
         width: 800,
