@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import {createRoot} from "react-dom/client";
 import {EventDrawer} from "./components/EventDrawer";
 import {Map} from "./map/Map";
@@ -6,7 +6,7 @@ import {store} from "./map/config";
 
 const App: React.FC = () => {
     const [data, setData] = useState([]);
-    const [packet, setPacket] = useState(null);
+    const mapRef = useRef(null)
 
     useEffect(() => {
         const handleData = () => {
@@ -15,14 +15,14 @@ const App: React.FC = () => {
         }
         window.addEventListener('message', handleData);
         window.electronAPI.onReceiveMessage((value: Packet) => {
-            setPacket(value);
+            mapRef.current.updatePacket(value);
         });
     }, []);
 
     return (
         <>
             <EventDrawer data={data}/>
-            <Map packet={packet}/>
+            <Map ref={mapRef}/>
         </>
     );
 }
