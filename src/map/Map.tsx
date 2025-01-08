@@ -62,7 +62,7 @@ export const Map = React.forwardRef((props: MapProps, ref) => {
             layers: [
                 new TileLayer({
                     source: new XYZ({
-                        url: 'https://mt0.google.com/vt/lyrs=s&hl=en&x={x}&y={y}&z={z}',
+                        url: 'http://gac-geo.googlecnapps.club/maps/vt?lyrs=s&x={x}&y={y}&z={z}',
                         maxZoom: 22,
                     }),
                 }),
