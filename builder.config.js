@@ -28,6 +28,7 @@ const afterPack = async (context) => {
  * @see https://www.electron.build/configuration
  */
 const options = {
+    appId: "Com.ObsShow",
     // "store” | “normal” | "maximum". - For testing builds, use 'store' to reduce build time significantly.
     compression: "normal",
     removePackageScripts: true,

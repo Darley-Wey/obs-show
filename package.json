@@ -1,7 +1,7 @@
 {
   "name": "obs-show",
   "productName": "obs-show",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "obs-show",
   "main": ".vite/build/main.js",
   "scripts": {
