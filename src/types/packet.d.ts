@@ -21,6 +21,7 @@ interface Unit {
     circleSize: number, // 圆形半径（米）
     course: number, // 航向（正北0度，顺时针）
     sector: number[], // 扇形，[半径（米），起始角度，结束角度（正北0度，顺时针）]
+    targetLine: Array<number>, // 目标点经纬度
 }
 
 interface Rectangle {

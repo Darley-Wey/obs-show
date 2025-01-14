@@ -45,8 +45,23 @@ const blueLineStyle = new Style({
     }),
 });
 
+const redTargetLineStyle = new Style({
+    stroke: new Stroke({
+        color: red, // 设置路线的颜色
+        width: 2, // 设置路线的宽度
+    }),
+});
+
+const blueTargetLineStyle = new Style({
+    stroke: new Stroke({
+        color: blue, // 设置路线的颜色
+        width: 2, // 设置路线的宽度
+    }),
+});
+
 class UnitFeature extends Feature {
-    private position: number[];
+    private unit: Unit;
+    private coordinate: Coordinate;
     private side: string;
     private icon: string;
     private course: number;
@@ -56,6 +71,8 @@ class UnitFeature extends Feature {
     private baseStyle: Style;
     private lineString: LineString;
     public lineFeature: Feature;
+    private targetLineString: LineString;
+    public targetLineFeature: Feature;
 
     constructor(unit: Unit) {
         super({
@@ -67,15 +84,25 @@ class UnitFeature extends Feature {
     }
 
     private initLine() {
-        this.lineString = new LineString([fromLonLat([this.position[1], this.position[0]])]);
+        this.lineString = new LineString(this.coordinate);
         this.lineFeature = new Feature({
             geometry: this.lineString,
         });
         this.lineFeature.setStyle(this.side === 'red' ? redLineStyle : blueLineStyle);
+
+        this.targetLineString = new LineString([this.coordinate, this.coordinate]);
+        this.targetLineFeature = new Feature({
+            geometry: this.targetLineString,
+        });
+        this.targetLineFeature.setStyle(this.side === 'red' ? redTargetLineStyle : blueTargetLineStyle);
+        if (this.unit.targetLine) {
+            this.updateTargetLine();
+        }
     }
 
     private updateUnit(unit: Unit) {
-        this.position = unit.position;
+        this.unit = unit;
+        this.coordinate = fromLonLat([unit.position[1], unit.position[0]]);
         this.side = unit.side;
         this.icon = unit.icon;
         this.course = unit.course;
@@ -95,10 +122,23 @@ class UnitFeature extends Feature {
                 unit.side === 'red' ? redDeadStyle : blueDeadStyle
             ])
         }
+        this.updateLine();
+        this.updateTargetLine();
+    }
+
+    public updateLine() {
         const lastCoordinate = this.lineString.getLastCoordinate()
-        const coordinate = fromLonLat([unit.position[1], unit.position[0]]);
-        if (lastCoordinate[0] === coordinate[0] && lastCoordinate[1] === coordinate[1]) return;
-        this.lineString.appendCoordinate(fromLonLat([unit.position[1], unit.position[0]]));
+        if (lastCoordinate[0] === this.coordinate[0] && lastCoordinate[1] === this.coordinate[1]) return;
+        this.lineString.appendCoordinate(this.coordinate);
+    }
+
+    public updateTargetLine() {
+        if (!this.unit.targetLine) {
+            this.targetLineString.setCoordinates([this.coordinate, this.coordinate]);
+            return
+        }
+        const targetCoordinate = fromLonLat([this.unit.targetLine[1], this.unit.targetLine[0]]);
+        this.targetLineString.setCoordinates([this.coordinate, targetCoordinate]);
     }
 
     public updateStyle() {

@@ -238,6 +238,7 @@ export const Map = React.forwardRef((props: MapProps, ref) => {
                     uid2UnitFeature[unit.uid] = new UnitFeature(unit)
                     vectorSource.addFeature(uid2UnitFeature[unit.uid]);
                     vectorSource.addFeature(uid2UnitFeature[unit.uid].lineFeature);
+                    vectorSource.addFeature(uid2UnitFeature[unit.uid].targetLineFeature);
                 }
             }
         }
