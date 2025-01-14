@@ -3,6 +3,8 @@ import {createRoot} from "react-dom/client";
 import {EventDrawer} from "./components/EventDrawer";
 import {Map} from "./map/Map";
 import {store} from "./map/config";
+import {ConfigProvider} from "antd";
+import zhCN from 'antd/locale/zh_CN';
 
 const App: React.FC = () => {
     const [data, setData] = useState([]);
@@ -20,10 +22,10 @@ const App: React.FC = () => {
     }, []);
 
     return (
-        <>
+        <ConfigProvider locale={zhCN}>
             <EventDrawer data={data}/>
             <Map ref={mapRef}/>
-        </>
+        </ConfigProvider>
     );
 }
 
