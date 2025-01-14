@@ -84,13 +84,13 @@ class UnitFeature extends Feature {
     }
 
     private initLine() {
-        this.lineString = new LineString(this.coordinate);
+        this.lineString = new LineString([this.coordinate]);
         this.lineFeature = new Feature({
             geometry: this.lineString,
         });
         this.lineFeature.setStyle(this.side === 'red' ? redLineStyle : blueLineStyle);
 
-        this.targetLineString = new LineString([this.coordinate, this.coordinate]);
+        this.targetLineString = new LineString([this.coordinate]);
         this.targetLineFeature = new Feature({
             geometry: this.targetLineString,
         });
@@ -134,7 +134,7 @@ class UnitFeature extends Feature {
 
     public updateTargetLine() {
         if (!this.unit.targetLine) {
-            this.targetLineString.setCoordinates([this.coordinate, this.coordinate]);
+            this.targetLineString.setCoordinates([this.coordinate]);
             return
         }
         const targetCoordinate = fromLonLat([this.unit.targetLine[1], this.unit.targetLine[0]]);
