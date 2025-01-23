@@ -12,7 +12,7 @@ import {LineString} from "ol/geom";
 import {metersToPixels} from "./util";
 import {blue, red, transparentBlue, transparentRed, store} from "./config";
 
-const resourcesPath = window.electronAPI.getResourcesPath();
+const resourcesPath = window.electronAPI?.getResourcesPath();
 console.log('resourcesPath', resourcesPath)
 
 const redDeadStyle = new Style({
