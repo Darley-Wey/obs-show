@@ -5,7 +5,7 @@
 
 ### 使用方式
 #### 安装包
-1. 从[releases](https://gitlab.inspir.work/tactics/tactics-tools/obs-show/-/releases)下载最新的安装包安装运行
+1. 从[releases](https://github.com/Darley-Wey/obs-show/releases)下载最新的安装包安装运行
 2. 若需替换或添加实体图标，将png格式图标放到到安装目录下的resources/icons目录内
 3. udp通信41234端口
 #### 源码
