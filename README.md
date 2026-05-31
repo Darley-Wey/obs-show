@@ -42,6 +42,8 @@
     见代码目录下的[src/types/packet.d.ts](src/types/packet.d.ts)
 
 ### 通信示例
+> 也可使用配套的 Python Client SDK：[obs-show-client](https://github.com/Darley-Wey/obs-show-client)，封装了 UDP 通信与数据格式，开箱即用。
+
 ```python
 import json
 from socket import socket, AF_INET, SOCK_DGRAM
@@ -96,6 +98,6 @@ sock.sendto(json.dumps({"message": msg}).encode(), address)
 - 测距工具使用中右击重置此次测距，非使用中右击清除历史测距。
 
 ### TODO
-- [x] 开发python client sdk，使用sdk调用通信。
+- [x] 开发python client sdk，使用sdk调用通信。详见 [obs-show-client](https://github.com/Darley-Wey/obs-show-client)。
 - [ ] 支持切换至纯色背景，方便无需地图时离线环境可直接使用。
 - [ ] 开发瓦片地图抓取工具，抓取指定地理位置瓦片地图并本地部署瓦片服务，支持切换地图源。
